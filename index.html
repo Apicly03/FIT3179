@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Malaysia’s Tourism Growth</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lora&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Lora', serif;
+      background-color: #f5e4ca;
+      color: #212529;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem;
+      text-align: center;
+      margin-top: 40px;
+      color: #004085;
+    }
+
+    .text-block {
+      border: 1.5px solid #dee2e6;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 40px auto;
+      width: 80%;
+      background-color: #ffffff;
+      box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .text-block h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.75rem;
+      color: #0056b3;
+      margin-bottom: 10px;
+    }
+
+    .text-block p {
+      font-size: 1rem;
+      line-height: 1.7;
+      margin-bottom: 0;
+      text-align: justify;
+    }
+
+    .chart-container {
+      margin: 40px auto;
+      width: 80%;
+      text-align: center;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #6c757d;
+      margin: 50px 0 20px 0;
+    }
+  </style>
+</head>
+<body>
+
+
+  <h1>A Glimpse into Malaysia's Tourism</h1>
+
+  <div class="text-block">
+    <h2>Introduction</h2>
+    <p>
+      Tourism plays a vital role in Malaysia’s economy, connecting cultures and driving growth across states and industries.
+      However, like many countries, Malaysia’s tourism sector faced severe disruption during the COVID-19 pandemic. 
+      This visualisation explores <b>how Malaysia’s tourism has grown and recovered</b> between 2015 and 2024.
+      Each chart reveals a different aspect of Malaysia’s journey towards regaining its position as one of Asia’s leading 
+      travel destinations.
+    </p>
+  </div>
+
+
+<div class="text-block">
+  <h2>The Impact of the Pandemic</h2>
+  <p>
+    The COVID-19 pandemic had a profound effect on Malaysia’s tourism sector. 
+    In 2021, international arrivals <b>collapsed</b> from 2019 — 
+    while domestic tourism became the nation’s main economic lifeline. 
+    As international borders remained closed, local travel slowly reignited.
+    The following charts illustrate how both markets evolved between <b>2019 and 2024</b>, 
+    highlighting Malaysia’s gradual road to recovery.
+  </p>
+</div>
+
+
+<div class="chart-container" id="chart-pandemic-lines"></div>
+<div class="chart-container" id="chart-pandemic-bars"></div>
+
+<script>
+ 
+  const lineSpec = {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "title": {
+      "text": "Domestic vs International Tourism in Malaysia (2019–2024)",
+      "anchor": "start",
+      "fontSize": 18,
+      "font": "Playfair Display"
+    },
+    "width": 800,
+    "height": 400,
+    "data": {
+      "url": "https://raw.githubusercontent.com/Apicly03/FIT3179/refs/heads/main/international_tourism_2019_2024.csv"
+    },
+    "transform": [
+      {
+        "lookup": "Year",
+        "from": {
+          "data": {
+            "url": "https://raw.githubusercontent.com/Apicly03/FIT3179/refs/heads/main/domestic_tourism_2019_2024.csv"
+          },
+          "key": "Year",
+          "fields": ["Domestic_Visitors"]
+        }
+      },
+      {"fold": ["Domestic_Visitors", "International_Arrivals"], "as": ["Category", "Visitors"]},
+      {"calculate": "datum.Visitors / 1000", "as": "Visitors_000"}
+    ],
+    "mark": {"type": "line", "point": true, "strokeWidth": 3},
+    "encoding": {
+      "x": {"field": "Year", "type": "ordinal", "axis": {"title": "Year"}},
+      "y": {
+        "field": "Visitors_000",
+        "type": "quantitative",
+        "axis": {"title": "Number of Visitors ('000)", "formatType": "number", "format": ",.0f"}
+      },
+      "color": {
+        "field": "Category",
+        "type": "nominal",
+        "scale": {"range": ["#D81B60", "#1E88E5"]},
+        "legend": {"title": "Tourism Type"}
+      },
+      "tooltip": [
+        {"field": "Year", "type": "ordinal"},
+        {"field": "Category", "type": "nominal"},
+        {"field": "Visitors_000", "type": "quantitative", "format": ",.0f", "title": "Visitors ('000)"}
+      ]
+    }
+  };
+
+  const barSpec = {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "title": {
+      "text": "Yearly Comparison of Domestic and International Tourism (2019–2024)",
+      "anchor": "start",
+      "fontSize": 18,
+      "font": "Playfair Display"
+    },
+    "width": 800,
+    "height": 400,
+    "data": {
+      "url": "https://raw.githubusercontent.com/Apicly03/FIT3179/refs/heads/main/international_tourism_2019_2024.csv"
+    },
+    "transform": [
+      {
+        "lookup": "Year",
+        "from": {
+          "data": {
+            "url": "https://raw.githubusercontent.com/Apicly03/FIT3179/refs/heads/main/domestic_tourism_2019_2024.csv"
+          },
+          "key": "Year",
+          "fields": ["Domestic_Visitors"]
+        }
+      },
+      {"fold": ["Domestic_Visitors", "International_Arrivals"], "as": ["Tourism_Type", "Visitors"]},
+      {"calculate": "datum.Visitors / 1000", "as": "Visitors_000"}
+    ],
+    "mark": {"type": "bar", "width": {"band": 0.35}},
+    "encoding": {
+      "x": {"field": "Year", "type": "ordinal", "axis": {"title": "Year"}},
+      "y": {
+        "field": "Visitors_000",
+        "type": "quantitative",
+        "axis": {"title": "Number of Visitors ('000)", "formatType": "number", "format": ",.0f"}
+      },
+      "color": {
+        "field": "Tourism_Type",
+        "type": "nominal",
+        "scale": {"range": ["#D81B60", "#1E88E5"]},
+        "legend": {"title": "Tourism Type"}
+      },
+      "tooltip": [
+        {"field": "Year", "type": "ordinal"},
+        {"field": "Tourism_Type", "type": "nominal"},
+        {"field": "Visitors_000", "type": "quantitative", "format": ",.0f", "title": "Visitors ('000)"}
+      ]
+    }
+  };
+
+  vegaEmbed("#chart-pandemic-lines", lineSpec, {mode: "vega-lite"}).then(console.log).catch(console.warn);
+  vegaEmbed("#chart-pandemic-bars", barSpec, {mode: "vega-lite"}).then(console.log).catch(console.warn);
+</script>
+
+<div class="text-block">
+  <h2>Tourism Hotspots Across Malaysia</h2>
+  <p>
+    In 2024, Malaysia’s tourism industry demonstrated a remarkable rebound with both local and international visitors contributing to the rebound across the nation. 
+    The map on the left highlights domestic tourism patterns — showing that 
+    Selangor remains the most visited state, followed closely by 
+    Johor and Sabah. These areas benefited from their strong urban centers and popular attractions. 
+    In contrast, Labuan and Perlis recorded the lowest domestic travel figures, 
+    reflecting smaller populations and limited tourism infrastructure.
+  </p>
+  <p>
+    On the right, international travel is shown to be concentrated in Selangor, and Johor. Meanwhile, states such as 
+    Perlis and Kelantan saw the fewest international arrivals.
+    Together, these maps illustrate how Malaysian tourism works with
+    domestic travelers tending to visit other states, while metropolitan states like Johor and Selangor attract international visitors.
+  </p>
+</div> 
+
+<div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 30px; margin-bottom: 40px;">
+  <div id="map-domestic" style="width: 45%; min-width: 350px;"></div>
+  <div id="map-international" style="width: 45%; min-width: 350px;"></div>
+</div>
+
+<script>
+  const malaysiaMapURL = "https://raw.githubusercontent.com/Apicly03/FIT3179/refs/heads/main/map_of_malaysia.json";
+  const visitorsURL = "https://raw.githubusercontent.com/Apicly03/FIT3179/refs/heads/main/visitors_by_state_2024.csv";
+
+  const domesticSpec = {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "title": "Domestic Visitors by State (2024)",
+    "width": 400,
+    "height": 500,
+    "data": {
+      "url": malaysiaMapURL,
+      "format": {"type": "topojson", "feature": "ne_10m_admin_1_states_provinces"}
+    },
+    "projection": {"type": "mercator", "scale": 1200, "center": [109.5, 5]},
+    "layer": [
+      {
+        "transform": [
+          {"calculate": "'Data is not available in ' + datum.properties.name", "as": "note"}
+        ],
+        "mark": {"type": "geoshape", "fill": "#f0f0f0", "stroke": "white"},
+        "encoding": {"tooltip": {"field": "note"}}
+      },
+      {
+        "transform": [
+          {
+            "lookup": "properties.name",
+            "from": {
+              "data": {"url": visitorsURL},
+              "key": "State",
+              "fields": ["Domestic_Visitors_2024"]
+            }
+          }
+        ],
+        "mark": {"type": "geoshape", "stroke": "white"},
+        "encoding": {
+          "color": {
+            "field": "Domestic_Visitors_2024",
+            "type": "quantitative",
+            "scale": {"scheme": "reds"},
+            "legend": {"title": "Domestic Visitors ('000)"}
+          },
+          "tooltip": [
+            {"field": "properties.name", "type": "nominal", "title": "State"},
+            {"field": "Domestic_Visitors_2024", "type": "quantitative", "format": ",.0f"}
+          ]
+        }
+      }
+    ]
+  };
+
+  const internationalSpec = {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "title": "International Visitors by State (2024)",
+    "width": 400,
+    "height": 500,
+    "data": {
+      "url": malaysiaMapURL,
+      "format": {"type": "topojson", "feature": "ne_10m_admin_1_states_provinces"}
+    },
+    "projection": {"type": "mercator", "scale": 1200, "center": [109.5, 5]},
+    "layer": [
+      {
+        "transform": [
+          {"calculate": "'No data available for ' + datum.properties.name", "as": "note"}
+        ],
+        "mark": {"type": "geoshape", "fill": "#f0f0f0", "stroke": "white"},
+        "encoding": {"tooltip": {"field": "note"}}
+      },
+      {
+        "transform": [
+          {
+            "lookup": "properties.name",
+            "from": {
+              "data": {"url": visitorsURL},
+              "key": "State",
+              "fields": ["International_Visitors_2024"]
+            }
+          }
+        ],
+        "mark": {"type": "geoshape", "stroke": "white"},
+        "encoding": {
+          "color": {
+            "field": "International_Visitors_2024",
+            "type": "quantitative",
+            "scale": {"scheme": "blues"},
+            "legend": {"title": "International Visitors ('000)"}
+          },
+          "tooltip": [
+            {"field": "properties.name", "type": "nominal", "title": "State"},
+            {"field": "International_Visitors_2024", "type": "quantitative", "format": ",.0f"}
+          ]
+        }
+      }
+    ]
+  };
+
+  vegaEmbed("#map-domestic", domesticSpec, {mode: "vega-lite"});
+  vegaEmbed("#map-international", internationalSpec, {mode: "vega-lite"});
+</script>
+
+<div class="text-block">
+  <h2>Where Tourists Spend Their Money (2019–2024)</h2>
+  <p>
+    Between 2019 and 2021, Malaysia’s tourism economy nearly came 
+    to a halt, with expenditure plummeting across all major categories. By 2024, both domestic and 
+    international visitors had reignited the sector — collectively spending over RM 200 billion.  
+    These charts highlight how Malaysians and foreign tourists allocated their spending over time, revealing 
+    what sectors benefited most from the nation’s tourism revival.
+  </p>
+</div>
+
+<div class="chart-container" id="chart-domestic-expenditure"></div>
+<div class="chart-container" id="chart-international-expenditure"></div>
+
+<script>
+
+  const domesticExpSpec = {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "title": {
+      "text": "Domestic Tourism Expenditure by Product (2019–2024)",
+      "font": "Playfair Display",
+      "fontSize": 18,
+      "anchor": "start"
+    },
+    "width": 800,
+    "height": 400,
+    "data": {
+      "url": "https://raw.githubusercontent.com/Apicly03/FIT3179/refs/heads/main/domestic_expenditure_by_product_2019_2024.csv"
+    },
+    "mark": "bar",
+    "encoding": {
+      "x": {"field": "Year", "type": "ordinal", "title": "Year"},
+      "y": {"field": "Amount_RM_Million", "type": "quantitative", "title": "RM Million"},
+      "color": {
+        "field": "Category",
+        "type": "nominal",
+        "scale": {"scheme": "reds"},
+        "legend": {"title": "Spending Category"}
+      },
+      "tooltip": [
+        {"field": "Year"},
+        {"field": "Category"},
+        {"field": "Amount_RM_Million", "format": ",.0f", "title": "RM Million"}
+      ]
+    }
+  };
+
+  const internationalExpSpec = {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "title": {
+      "text": "Inbound Tourism Expenditure by Product (2019–2024)",
+      "font": "Playfair Display",
+      "fontSize": 18,
+      "anchor": "start"
+    },
+    "width": 800,
+    "height": 400,
+    "data": {
+      "url": "https://raw.githubusercontent.com/Apicly03/FIT3179/refs/heads/main/inbound_expenditure_by_product_2019_2024.csv"
+    },
+    "mark": "bar",
+    "encoding": {
+      "x": {"field": "Year", "type": "ordinal", "title": "Year"},
+      "y": {"field": "Amount_RM_Million", "type": "quantitative", "title": "RM Million"},
+      "color": {
+        "field": "Category",
+        "type": "nominal",
+        "scale": {"scheme": "blues"},
+        "legend": {"title": "Spending Category"}
+      },
+      "tooltip": [
+        {"field": "Year"},
+        {"field": "Category"},
+        {"field": "Amount_RM_Million", "format": ",.0f", "title": "RM Million"}
+      ]
+    }
+  };
+
+  vegaEmbed("#chart-domestic-expenditure", domesticExpSpec, {mode: "vega-lite"}).then(console.log).catch(console.warn);
+  vegaEmbed("#chart-international-expenditure", internationalExpSpec, {mode: "vega-lite"}).then(console.log).catch(console.warn);
+</script>
+
+<div class="text-block">
+  <h2>Conclusion</h2>
+  <p>
+    Malaysia’s tourism journey between 2019 and 2024 paints a story of resilience and adaptability. 
+    When the pandemic brought travel to a standstill, both domestic and international arrivals collapsed to record lows. 
+    Yet within just a few years, the nation not only reopened its borders but reignited its tourism heartbeat.
+  </p>
+  <p>
+    The data reveals that domestic tourism played a crucial role in stabilising the industry during the lockdown period. 
+    Local travellers sustained hotels, restaurants, and cultural attractions, helping small businesses survive until 
+    international travel resumed. By 2024, international arrivals once again surpassed millions, 
+    with tourism expenditure rebounding beyond pre-pandemic levels which marks a full recovery for Malaysia’s visitor economy.
+  </p>
+  <p>
+    In essence, Malaysia’s post-pandemic tourism recovery showcases not just the return of travel, but the evolution of traveller behaviour. 
+    Spending has diversified toward experiences, local products, and cultural engagement, 
+    highlighting a shift from mass tourism toward a more sustainable consumer model. 
+  </p>
+</div>
+
+</body>
+</html>
